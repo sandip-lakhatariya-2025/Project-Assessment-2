@@ -8,6 +8,7 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Assessment.Web.Controllers;
 
+[Authorize(Roles = "Admin")]
 public class HomeController : Controller
 {
 
@@ -17,7 +18,6 @@ public class HomeController : Controller
         _productService = productService;
     }
 
-    [Authorize]
     public IActionResult Index()
     {
         return View();
@@ -63,11 +63,5 @@ public class HomeController : Controller
         var result = await _productService.DeleteProductAsync(productId);
 
         return Json(new { isSuccess = result.isSuccess, message = result.message });
-    }
-
-    [Authorize(Roles = "Admin")]
-    public IActionResult Privacy()
-    {
-        return View();
     }
 }

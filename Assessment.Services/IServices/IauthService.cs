@@ -4,5 +4,5 @@ namespace Assessment.Services.IServices;
 
 public interface IAuthService
 {
-    Task<(bool isSuccess, string message)> CheckLoginCredentials(UserViewModel user);
+    Task<(bool isSuccess, string message, string? role)> CheckLoginCredentials(UserViewModel user);
 }

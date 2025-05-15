@@ -1,0 +1,99 @@
+@{
+    ViewData["Title"] = "All Orders";
+}
+
+<div class="container-fluid row justify-content-center px-4">
+    <div class="col-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <span class="fs-2 fw-semibold">All Orders</span>
+        </div>
+        <div class="bg-white shadow p-3 mt-4" id="allOrdersListContainer">
+            
+        </div>
+    </div>
+</div>
+
+<div class="modal fade" id="updateOrderStatusModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Update Order Status</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <input type="hidden" id="orderId">
+                <div class="form-floating">
+                    <select class="form-select" id="orderStatus">
+                        <option hidden selected disabled>Select The Order Status</option>
+                        <option value="Accepted">Accepted</option>
+                        <option value="Shipped">Shipped</option>
+                        <option value="Delivered">Delivered</option>
+                    </select>
+                    <label for="OrderStatus">Order Status</label>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="UpdateOrderStatus()">update</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+
+    $(document).ready(function() {
+        FetchAllOrdersList();
+    });
+
+    function FetchAllOrdersList() {
+        $.ajax({
+            url: '@Url.Action("GetAllOrdersList", "Order")',
+            type: 'GET',
+            success: function(response) {
+                $('#allOrdersListContainer').html(response);
+            },
+            error: function() {
+                toastr.error("Error!");
+            }
+        })
+    }    
+
+    function ShowOrderStatusModal(id) {
+        $('#updateOrderStatusModal').modal('show');
+        $('#updateOrderStatusModal #orderId').val(id);
+    }
+
+    function UpdateOrderStatus() {
+        var id = $('#orderId').val();
+        const status = $('#orderStatus').val();
+
+        if(status === null) {
+            toastr.error("Please select the Order Status");
+            return;
+        }
+
+        $.ajax({
+            url: '@Url.Action("UpdateOrderStatus", "Order")',
+            type: 'POST',
+            data: {
+                    orderId: id,
+                    orderStatus: status
+                  },
+            success: function(response) {
+                if(response.isSuccess) {
+                    toastr.success(response.message);
+                    $('#updateOrderStatusModal').modal('hide');
+                    FetchAllOrdersList();
+                }
+                else {
+                    toastr.error(response.message)
+                }
+            },
+            error: function() {
+                toastr.error("Error!");
+            }
+        })
+    }
+
+</script>

@@ -18,18 +18,28 @@ public class OrderController : Controller
         _orderService = orderService;
     }
 
-    [Authorize]
-    public IActionResult Index()
+    [Authorize(Roles = "User")]
+    public async Task<IActionResult> Index()
+    {
+        int customerId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        List<OrderDetailsViewModel>? orderDetailsList = await _orderService.GetAllOrderOfCustomer(customerId);
+        return View(orderDetailsList);
+    }
+
+    [Authorize(Roles = "User")]
+    public IActionResult OrderCart()
     {
         return View();
     }
 
+    [Authorize(Roles = "User")]
     [HttpGet]
     public async Task<IActionResult> GetProductDetails(int productId) {
         ProductViewModal? product = await _productService.GetProductById(productId);
         return Json(product);
     }
 
+    [Authorize(Roles = "User")]
     [HttpPost]
     public async Task<IActionResult> CreateNewOrder(List<ProductViewModal> OrderDetails) {
         int customerId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
@@ -37,11 +47,25 @@ public class OrderController : Controller
         return Json(new { isSuccess = result.isSuccess, message = result.message });
     }
 
-    [Authorize]
-    public async Task<IActionResult> MyOrder()
+
+    [Authorize(Roles = "Admin")]
+    public IActionResult AllOrderHistory()
     {
-        int customerId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
-        List<OrderDetailsViewModel>? orderDetailsList = await _orderService.GetAllOrderOfCustomer(customerId);
-        return View("CustomersOrder", orderDetailsList);
+        return View();
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpGet]
+    public async Task<IActionResult> GetAllOrdersList()
+    {
+        List<OrderDetailsViewModel>? orderDetailsList = await _orderService.GetAllOrders();
+        return PartialView("_AllOrdersList", orderDetailsList);
+    }
+
+    [Authorize(Roles = "Admin")]
+    [HttpPost]
+    public async Task<IActionResult> UpdateOrderStatus(int orderId, string orderStatus){
+        var result = await _orderService.UpdateOrderStatusAsync(orderId, orderStatus);
+        return Json(new { isSuccess = result.isSuccess, message = result.message });
     }
 }

@@ -1,223 +1,54 @@
-@using Assessment.Services.IServices
-@inject IDropdownService DropdownService
+@model List<OrderDetailsViewModel>
 
 @{
-    ViewData["Title"] = "Cart Page";
+    ViewData["Title"] = "My Orders";
 }
 
 <div class="container-fluid row justify-content-center px-4">
     <div class="col-10">
         <div class="d-flex justify-content-between align-items-center mb-4">
-            <span class="fs-2 fw-semibold">Create New Order</span>
-        </div>
-        <div class="bg-white p-3">
-            <div class="form-floating">
-                <select class="form-select" asp-items="DropdownService.GetProductList()" onchange="GetProductDetails(this)">
-                    <option hidden selected>Add a Product</option>
-                </select>
-                <label for="Product">Product</label>
-            </div>
+            <span class="fs-2 fw-semibold">My Orders</span>
         </div>
         <div class="bg-white shadow p-3 mt-4">
-            <div class="d-flex justify-content-between align-items-center mb-4">
-                <span class="fs-3 fw-semibold">Your Cart</span>
-                <button class="btn btn-outline-primary" id="checkoutBtn" onclick="Checkout()" disabled>
-                    <i class="bi bi-cart-check"></i> Check Out
-                </button>
-            </div>
             <div class="table-responsive">
                 <table class="table" id="cartList">
                     <thead>
                         <tr>
-                            <th>Product Name</th>
-                            <th>Rate</th>
-                            <th>Quantity</th>
-                            <th>Total</th>
-                            <th>Remove</th>
+                            <th>#Order</th>
+                            <th>Products</th>
+                            <th>Order Status</th>
+                            <th>Total Amount</th>
                         </tr>
                     </thead>
                     <tbody>
+                        @foreach(var order in Model) {
+                            <tr>
+                                <td>#@order.Id</td>
+                                <td>
+                                    @foreach(var product in order.OrderedProducts!) {
+                                        <div class="d-flex flex-column mt-2" style=" min-width: 250px; max-width: 400px;">
+                                            <div class="d-flex justify-content-between">
+                                                <div class="me-5">
+                                                    <span style="list-style-type: disc; display: inline-block; margin-right: 8px;">•</span>
+                                                    @product.ProductName - (@product.ProductQuantity)
+                                                </div>
+                                                <div style="">@product.ProductRate.ToString("F2")</div>
+                                            </div>
+                                        </div>
+                                    }
+                                </td>
+                                <td>@order.OrderStatus</td>
+                                <td>@order.TotalAmount.ToString("F2")</td>
+                            </tr>
+                        }
                     </tbody>
                 </table>
-            </div>
-            <div class="d-flex justify-content-between">
-                <span class="fs-4 fw-semibold">Total Amount: </span>
-                <span class="fs-4 fw-semibold" id="totalAmount">0.00</span>
+                @if(Model.Count() == 0) {
+                    <div class="d-flex justify-content-center align-items-center py-5">
+                        <div class="fs-5 fw-semibold" style="color: #727b83;">No Data Available.</div>
+                    </div>
+                }
             </div>
         </div>
     </div>
 </div>
-
-<script>
-    let productCart = [];
-    let MyCart = sessionStorage.getItem("MyCart");
-
-    function SetSessionItems() {
-        sessionStorage.setItem("MyCart", JSON.stringify({
-            ProductCart: productCart,
-        }));
-    }
-
-    $(document).ready(function() {
-        if(MyCart !== null) {
-            MyCart = JSON.parse(MyCart);
-            productCart = MyCart.ProductCart;
-            productCart.forEach(product => AddItemToCart(product));
-        }
-    });
-
-    function AddItemToCart(product) {
-        var template = document.getElementById('product-row-template').innerHTML;
-        var newRow = template
-            .replace(/{{ProductName}}/g, product.ProductName)
-            .replace(/{{ProductRate}}/g, parseFloat(product.ProductRate).toFixed(2))
-            .replace(/{{StockQuantity}}/g, product.StockQuantity)
-            .replace(/{{ProductQuantity}}/g, product.ProductQuantity)
-            .replace(/{{RowId}}/g, product.RowId)
-        
-        $('#cartList tbody').append(newRow);
-        UpdateOrderSummary();
-    }
-
-    function GetProductDetails(selectedProduct) {
-        const productId = selectedProduct.value;
-        $.ajax({
-            url: '@Url.Action("GetProductDetails", "Order")',
-            type: 'GET',
-            data: {productId: productId},
-            success: function (product) {
-                let tempRowId = new Date().getTime();
-                productCart.push({
-                    RowId: tempRowId,
-                    ProductName: product.productName,
-                    Id: product.id,
-                    ProductQuantity: 1,
-                    ProductRate: product.productRate,
-                    StockQuantity: product.stockQuantity
-                });
-                const index = productCart.findIndex(i => i.RowId === tempRowId);
-                AddItemToCart(productCart[index]);
-            },
-            error: function () {    
-                alert('Error');
-            }
-        });
-    }
-
-    function UpdateProductTotal(input) {
-        const productRate = parseFloat(input.dataset.productrate);
-        const quantity = parseInt(input.value) || 0;
-        const itemAmount = quantity * productRate;
-        const parentRow = input.closest('tr');
-        parentRow.querySelector(".product-total").innerText = itemAmount.toFixed(2);
-    }
-
-    function UpdateOrderSummary() {
-        const productRow = document.querySelectorAll('#cartList .product-quantity');
-        var totalAmount = 0;
-        productRow.forEach(function(product) {
-            const productRate = parseFloat(product.dataset.productrate);
-            const quantityValue = parseFloat(product.value);
-            totalAmount += (quantityValue * productRate);
-        })
-        document.getElementById('totalAmount').innerText = parseFloat(totalAmount).toFixed(2);
-        const checkoutBtn = document.getElementById('checkoutBtn');
-
-        if(productCart.length > 0){
-            if (checkoutBtn.hasAttribute("disabled")) {
-                checkoutBtn.removeAttribute("disabled");
-            }
-        }
-        else {
-            if (!checkoutBtn.hasAttribute("disabled")) {
-                checkoutBtn.setAttribute("disabled", "true");
-            }
-        }
-        SetSessionItems();
-    }
-
-    function RemoveProduct(row) {
-        const rowId = parseInt(row.dataset.rowid);
-        const index = productCart.findIndex(i => i.RowId === rowId);
-        if (index !== -1) {
-            productCart.splice(index, 1);
-        }
-        row.closest('tr').remove();
-        UpdateOrderSummary();
-    }
-
-    function HandleItemQuantity(input) {
-        minValue =  parseInt(input.getAttribute('min'));
-        maxValue =  parseInt(input.getAttribute('max'));
-        currentValue =  parseInt(input.value);
-
-        const rowId = parseInt(input.dataset.rowid);
-
-        if (currentValue >= minValue && currentValue <= maxValue) {
-
-            const product = productCart.find(i => i.RowId === rowId);
-            if (product) {
-                product.ProductQuantity = currentValue;
-            }
-            console.log(productCart);
-
-            UpdateOrderSummary();
-            UpdateProductTotal(input);
-        } 
-        else {
-            toastr.clear();
-            toastr.error(`Product stock is less than ${currentValue}`);
-            input.value = 1;
-        }
-    }
-
-    function Checkout() {
-        $.ajax({
-            url: '@Url.Action("CreateNewOrder", "Order")', 
-            type: 'POST',
-            data: {
-                    OrderDetails: productCart
-                  },
-            success: function (response) {
-                if(response.isSuccess) {
-                    toastr.success(response.message);
-                    productCart = [];
-                    sessionStorage.removeItem("MyCart");
-                    location.href="/Order/MyOrder";
-                }
-                else {
-                    toastr.error(response.message);
-                }
-            },
-            error: function (xhr, status, error) {
-                toastr.error("Error: " + error);
-            }
-        });
-    }
-
-</script>
-
-<script type="text/template" id="product-row-template">
-    <tr>
-        <td>{{ProductName}}</td>
-        <td>{{ProductRate}}</td>
-        <td>
-            <input type="number" 
-                class="form-control product-quantity"
-                value="{{ProductQuantity}}" 
-                min="1" 
-                max="{{StockQuantity}}"   
-                style="width: 100px;"
-                data-rowid="{{RowId}}"
-                data-productrate="{{ProductRate}}"
-                onchange="HandleItemQuantity(this)"
-            >
-        </td>
-        <td class="product-total">{{ProductRate}}</td>
-        <td>
-            <button class="border-0 bg-transparent" data-rowid="{{RowId}}" onclick="RemoveProduct(this)">
-                <i class="bi bi-trash text-danger"></i>
-            </button>
-        </td>
-    </tr>
-</script>

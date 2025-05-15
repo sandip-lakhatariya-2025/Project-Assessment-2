@@ -90,4 +90,50 @@ public class OrderService : IOrderService
         }
     }
 
+    public async Task<List<OrderDetailsViewModel>?> GetAllOrders() {
+        try
+        {
+            return await _unitOfWork.Orders.GetSelectedListAsync(
+                o => 1 == 1,
+                o => new OrderDetailsViewModel {
+                    Id = o.Id,
+                    OrderStatus = o.OrderStatus,
+                    TotalAmount = o.TotalAmount,
+                    OrderedProducts = o.OrderDetails.Select(od => new ProductViewModal{
+                        ProductName = od.Product.ProductName,
+                        ProductQuantity = od.ProductQuantity,
+                        ProductRate = od.ProductRate,
+                    }).ToList()
+                }
+            );
+        }
+        catch (Exception)
+        {            
+            return null;
+        }
+    }
+
+    public async Task<(bool isSuccess, string message)> UpdateOrderStatusAsync(int orderId, string orderStatus) {
+        try
+        {
+
+            Order? existingOrder = await _unitOfWork.Orders.GetFirstOrDefault(o => o.Id == orderId);
+
+            if(existingOrder != null) {
+                existingOrder.OrderStatus = orderStatus;
+                bool isUpdated = await _unitOfWork.Orders.UpdateAsync(existingOrder);
+                
+                if(isUpdated) {
+                    return (true, "Order Status has been updated successfully.");
+                }
+            }
+
+            return (false, "Some error occured.");
+        }
+        catch (Exception ex)
+        {
+            return(false, $"There is an error: {ex}");
+        }
+    }
+
 }

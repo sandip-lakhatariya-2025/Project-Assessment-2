@@ -31,7 +31,12 @@ public class AuthController : Controller
         var result = await _authService.CheckLoginCredentials(user);
         if(result.isSuccess){
             TempData["success"] = result.message;
-            return RedirectToAction("Index", "Home");
+            if(result.role == "Admin"){
+                return RedirectToAction("Index", "Home");
+            }
+            else{
+                return RedirectToAction("Index", "Order");
+            }
         }
         TempData["error"] = result.message;
         return RedirectToAction("Index", "Auth");

@@ -25,7 +25,7 @@ public class AuthService : IAuthService
         _httpContextAccessor = httpContextAccessor;
     }
 
-    public async Task<(bool isSuccess, string message)> CheckLoginCredentials(UserViewModel user)
+    public async Task<(bool isSuccess, string message, string? role)> CheckLoginCredentials(UserViewModel user)
     {
 
         HttpContext httpContext = _httpContextAccessor.HttpContext;
@@ -45,7 +45,7 @@ public class AuthService : IAuthService
 
             if(existingUser != null) {
                 if(existingUser.Password != HashPassword(user.Password)) {
-                    return(false, $"Invalid Login Credentials.");
+                    return(false, $"Invalid Login Credentials.", null);
                 }
 
                 string jwttoken = GenerateJWTToken(existingUser.Id, existingUser.UserName, existingUser.RoleName!, user.IsRememberMe);
@@ -56,14 +56,14 @@ public class AuthService : IAuthService
                     Expires = user.IsRememberMe ? DateTime.UtcNow.AddDays(15) : DateTime.UtcNow.AddDays(1)
                 });
 
-                return (true, "User Logged in successfully.");
+                return (true, "User Logged in successfully.", existingUser.RoleName);
             }
 
-            return(false, $"Invalid Login Credentials.");
+            return(false, $"Invalid Login Credentials.", null);
         }
         catch (Exception ex)
         {
-            return(false, $"There is an error: {ex}");
+            return(false, $"There is an error: {ex}", null);
         }
     }
 

@@ -1,0 +1,44 @@
+@model List<OrderDetailsViewModel>
+    
+<div class="table-responsive">
+    <table class="table" id="cartList">
+        <thead>
+            <tr>
+                <th>#Order</th>
+                <th>Products</th>
+                <th>Order Status</th>
+                <th>Total Amount</th>
+                <th>Action</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach(var order in Model) {
+                <tr>
+                    <td>#@order.Id</td>
+                    <td>
+                        @foreach(var product in order.OrderedProducts!) {
+                            <div class="d-flex flex-column mt-2" style=" min-width: 250px; max-width: 400px;">
+                                <div class="d-flex justify-content-between">
+                                    <div class="me-5">
+                                        <span style="list-style-type: disc; display: inline-block; margin-right: 8px;">•</span>
+                                        @product.ProductName - (@product.ProductQuantity)
+                                    </div>
+                                    <div style="">@product.ProductRate.ToString("F2")</div>
+                                </div>
+                            </div>
+                        }
+                    </td>
+                    <td>@order.OrderStatus</td>
+                    <td>@order.TotalAmount.ToString("F2")</td>
+                    <td>
+                        <div class="action-btn">
+                            <button class="border-0 bg-transparent" onclick="ShowOrderStatusModal(@order.Id)">
+                                <i class="bi bi-clipboard-check text-info"></i>
+                            </button>
+                        </div>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+</div>
