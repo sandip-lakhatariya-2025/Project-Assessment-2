@@ -24,3 +24,10 @@ html {
 body {
   margin-bottom: 60px;
 }
+
+.low-stock-warning {
+  color: white;
+  background-color: #DC4C64;
+  padding: 1px 7px;
+  border-radius: 5px;
+}

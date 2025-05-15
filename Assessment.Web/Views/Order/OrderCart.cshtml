@@ -12,7 +12,7 @@
         </div>
         <div class="bg-white p-3">
             <div class="form-floating">
-                <select class="form-select" asp-items="DropdownService.GetProductList()" onchange="GetProductDetails(this)">
+                <select class="form-select" id="productDropdown" asp-items="DropdownService.GetProductList()" onchange="GetProductDetails(this)">
                     <option hidden selected>Add a Product</option>
                 </select>
                 <label for="Product">Product</label>
@@ -69,7 +69,9 @@
         if(MyCart !== null) {
             MyCart = JSON.parse(MyCart);
             productCart = MyCart.ProductCart;
-            productCart.forEach(product => AddItemToCart(product));
+            productCart.forEach(product => {
+                AddItemToCart(product);
+            });
         }
     });
 
@@ -88,6 +90,20 @@
 
     function GetProductDetails(selectedProduct) {
         const productId = selectedProduct.value;
+
+        const existingProduct = productCart.find(i => i.Id == productId);
+        if (existingProduct) {
+            if(existingProduct.ProductQuantity < existingProduct.StockQuantity){
+                existingProduct.ProductQuantity += 1;
+                SetSessionItems();
+                $("input[data-rowid='"+existingProduct.RowId+"']").val(existingProduct.ProductQuantity)
+            }
+            else {
+                toastr.error("You can't add more quantity of that item.");
+            }
+            return;
+        }
+
         $.ajax({
             url: '@Url.Action("GetProductDetails", "Order")',
             type: 'GET',
@@ -104,6 +120,7 @@
                 });
                 const index = productCart.findIndex(i => i.RowId === tempRowId);
                 AddItemToCart(productCart[index]);
+                
             },
             error: function () {    
                 alert('Error');
@@ -168,7 +185,6 @@
             if (product) {
                 product.ProductQuantity = currentValue;
             }
-            console.log(productCart);
 
             UpdateOrderSummary();
             UpdateProductTotal(input);
