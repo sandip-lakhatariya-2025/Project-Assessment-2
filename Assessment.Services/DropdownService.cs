@@ -13,7 +13,7 @@ public class DropdownService : IDropdownService
     }
 
     public List<SelectListItem> GetProductList() {
-        return _context.Products.Where(p => !p.IsDeleted).Select(p => new SelectListItem{
+        return _context.Products.Where(p => !p.IsDeleted && p.StockQuantity > 0).Select(p => new SelectListItem{
             Text = p.ProductName,
             Value = p.Id.ToString()
         }).ToList();
