@@ -9,4 +9,5 @@ public class Product
     public int StockQuantity { get; set; }
     public string Category { get; set; } = null!;
     public bool IsDeleted { get; set; }
+    public virtual ICollection<OrderDetail> OrderDetails { get; } = new List<OrderDetail>();
 }

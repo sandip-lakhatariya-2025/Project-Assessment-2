@@ -44,5 +44,14 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await _dbSet.AnyAsync(filter);
     }
     
+    public async Task<bool> InsertListAsync(List<T> list) {
+        _context.AddRange(list);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
+    public async Task<bool> UpdateListAsync(List<T> list) {
+        _context.UpdateRange(list);
+        return await _context.SaveChangesAsync() > 0;
+    }
 
 }

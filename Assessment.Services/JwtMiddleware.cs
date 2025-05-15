@@ -25,6 +25,7 @@ public class JwtMiddleware
                 IEnumerable<Claim> claims = jwtToken.Claims;
                 Claim? roleClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Role);
                 Claim? userNameClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.Name);
+                Claim? userIdClaim = claims.FirstOrDefault(c => c.Type == ClaimTypes.NameIdentifier);
 
                 if (roleClaim != null)
                 {

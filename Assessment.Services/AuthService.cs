@@ -35,6 +35,7 @@ public class AuthService : IAuthService
             UserViewModel? existingUser = await _unitOfWork.Users.GetFirstOrDefaultSelected(
                 u => u.Email.ToLower() == user.Email.ToLower(), 
                 u => new UserViewModel {
+                    Id = u.Id,
                     Email = u.Email,
                     UserName = u.UserName,
                     Password = u.Password,
@@ -47,7 +48,7 @@ public class AuthService : IAuthService
                     return(false, $"Invalid Login Credentials.");
                 }
 
-                string jwttoken = GenerateJWTToken(existingUser.UserName, existingUser.RoleName!, user.IsRememberMe);
+                string jwttoken = GenerateJWTToken(existingUser.Id, existingUser.UserName, existingUser.RoleName!, user.IsRememberMe);
 
                 httpContext.Response.Cookies.Append("JwtCookie", jwttoken, new CookieOptions{
                     HttpOnly = true,
@@ -73,9 +74,10 @@ public class AuthService : IAuthService
         return Convert.ToBase64String(hashedBytes);
     }
 
-    private string GenerateJWTToken(string userName, string role, bool isRememberMe)
+    private string GenerateJWTToken(int userId, string userName, string role, bool isRememberMe)
     {
         Claim[] claims = new[] {
+            new Claim(ClaimTypes.NameIdentifier, userId.ToString()),
             new Claim(ClaimTypes.Name, userName),
             new Claim(ClaimTypes.Role, role)
         };

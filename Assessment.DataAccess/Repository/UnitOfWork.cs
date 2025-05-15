@@ -10,7 +10,11 @@ public class UnitOfWork : IUnitOfWork
         _context = context;
         Users = new UserRepository(_context);
         Products = new ProductRepository(_context);
+        Orders = new OrderRepository(_context);
+        OrderDetails = new OrderDetailsRepository(_context);
     }
     public IUserRepository Users { get; private set; }
     public IProductRepository Products { get; private set; }
+    public IOrderRepository Orders { get; private set; }
+    public IOrderDetailsRepository OrderDetails { get; private set; }
 }

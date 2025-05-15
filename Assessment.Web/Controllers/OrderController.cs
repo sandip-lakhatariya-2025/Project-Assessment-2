@@ -1,3 +1,4 @@
+using System.Security.Claims;
 using Assessment.Models.ViewModel;
 using Assessment.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -5,13 +6,15 @@ using Microsoft.AspNetCore.Mvc;
 
 namespace Assessment.Web.Controllers;
 
-public class CartController : Controller
+public class OrderController : Controller
 {
 
     private readonly IProductService _productService;
+    private readonly IOrderService _orderService;
 
-    public CartController(IProductService productService) {
+    public OrderController(IProductService productService, IOrderService orderService) {
         _productService = productService;
+        _orderService = orderService;
     }
 
     [Authorize]
@@ -34,6 +37,9 @@ public class CartController : Controller
         Console.WriteLine("--------------> "+OrderDetails.First().ProductRate);
         Console.WriteLine("--------------> "+OrderDetails.First().ProductQuantity);
         Console.WriteLine("--------------> "+OrderDetails.First().Id);
-        return Json(new { isSuccess = "result.isSuccess", message = "result.message" });
+        int customerId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
+
+        var result = await _orderService.AddNewOrderAsync(OrderDetails, customerId);
+        return Json(new { isSuccess = result.isSuccess, message = result.message });
     }
 }

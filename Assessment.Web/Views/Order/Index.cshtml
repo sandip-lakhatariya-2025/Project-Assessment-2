@@ -79,7 +79,7 @@
     function GetProductDetails(selectedProduct) {
         const productId = selectedProduct.value;
         $.ajax({
-            url: '@Url.Action("GetProductDetails", "Cart")',
+            url: '@Url.Action("GetProductDetails", "Order")',
             type: 'GET',
             data: {productId: productId},
             success: function (product) {
@@ -157,7 +157,7 @@
 
     function Checkout() {
         $.ajax({
-            url: '@Url.Action("CreateNewOrder", "Cart")', 
+            url: '@Url.Action("CreateNewOrder", "Order")', 
             type: 'POST',
             data: {
                     OrderDetails: productCart

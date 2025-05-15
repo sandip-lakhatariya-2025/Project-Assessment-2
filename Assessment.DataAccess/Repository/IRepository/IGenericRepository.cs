@@ -10,4 +10,6 @@ public interface IGenericRepository<T> where T : class
     Task<bool> UpdateAsync(T entity);
     Task<List<TResult>> GetSelectedListAsync<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selector);
     Task<bool> ExistAsync(Expression<Func<T, bool>> filter);
+    Task<bool> InsertListAsync(List<T> list);
+    Task<bool> UpdateListAsync(List<T> list);
 }
