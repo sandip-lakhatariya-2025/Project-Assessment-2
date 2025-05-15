@@ -43,6 +43,7 @@ builder.Services.AddAuthentication(options => {
 builder.Services.AddScoped<IUnitOfWork, UnitOfWork>();
 builder.Services.AddScoped<IAuthService, AuthService>();
 builder.Services.AddScoped<IProductService, ProductService>();
+builder.Services.AddScoped<IDropdownService, DropdownService>();
 
 // Add services to the container.
 builder.Services.AddControllersWithViews();

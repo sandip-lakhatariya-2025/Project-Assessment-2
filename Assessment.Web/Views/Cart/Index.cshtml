@@ -1,0 +1,205 @@
+@using Assessment.Services.IServices
+@inject IDropdownService DropdownService
+
+@{
+    ViewData["Title"] = "Cart Page";
+}
+
+<div class="container-fluid row justify-content-center px-4">
+    <div class="col-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <span class="fs-2 fw-semibold">Create New Order</span>
+        </div>
+        <div class="bg-white p-3">
+            <div class="form-floating">
+                <select class="form-select" asp-items="DropdownService.GetProductList()" onchange="GetProductDetails(this)">
+                    <option hidden selected>Add a Product</option>
+                </select>
+                <label for="Product">Product</label>
+            </div>
+        </div>
+        <div class="bg-white shadow p-3 mt-4">
+            <div class="d-flex justify-content-between align-items-center mb-4">
+                <span class="fs-3 fw-semibold">Your Cart</span>
+                <button class="btn btn-outline-primary" onclick="Checkout()">
+                    <i class="bi bi-cart-check"></i> Check Out
+                </button>
+            </div>
+            <div class="table-responsive">
+                <table class="table" id="cartList">
+                    <thead>
+                        <tr>
+                            <th>Product Name</th>
+                            <th>Rate</th>
+                            <th>Quantity</th>
+                            <th>Total</th>
+                            <th>Remove</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                    </tbody>
+                </table>
+            </div>
+            <div class="d-flex justify-content-between">
+                <span class="fs-4 fw-semibold">Total Amount: </span>
+                <span class="fs-4 fw-semibold" id="totalAmount">0.00</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    let productCart = [];
+    @* productCart.push({
+        RowId: 1,
+        ProductName: "Test",
+        ProductId: 1,
+        ProductQuantity: 1,
+        ProductRate: 90000,
+        StockQuantity: 7
+    }); *@
+
+    $(document).ready(function() {
+        @* AddItemToCart(productCart[0]); *@
+    });
+
+    function AddItemToCart(product) {
+        var template = document.getElementById('product-row-template').innerHTML;
+        var newRow = template
+            .replace(/{{ProductName}}/g, product.ProductName)
+            .replace(/{{ProductRate}}/g, parseFloat(product.ProductRate).toFixed(2))
+            .replace(/{{StockQuantity}}/g, product.StockQuantity)
+            .replace(/{{ProductQuantity}}/g, product.ProductQuantity)
+            .replace(/{{RowId}}/g, product.RowId)
+        
+        $('#cartList tbody').append(newRow);
+        UpdateOrderSummary();
+    }
+
+    function GetProductDetails(selectedProduct) {
+        const productId = selectedProduct.value;
+        $.ajax({
+            url: '@Url.Action("GetProductDetails", "Cart")',
+            type: 'GET',
+            data: {productId: productId},
+            success: function (product) {
+                let tempRowId = new Date().getTime();
+                productCart.push({
+                    RowId: tempRowId,
+                    ProductName: product.productName,
+                    Id: product.id,
+                    ProductQuantity: 1,
+                    ProductRate: product.productRate,
+                    StockQuantity: product.stockQuantity
+                });
+                const index = productCart.findIndex(i => i.RowId === tempRowId);
+                AddItemToCart(productCart[index]);
+            },
+            error: function () {    
+                alert('Error');
+            }
+        });
+    }
+
+    function UpdateProductTotal(input) {
+        const productRate = parseFloat(input.dataset.productrate);
+        const quantity = parseInt(input.value) || 0;
+        const itemAmount = quantity * productRate;
+        const parentRow = input.closest('tr');
+        parentRow.querySelector(".product-total").innerText = itemAmount.toFixed(2);
+    }
+
+    function UpdateOrderSummary() {
+        const productRow = document.querySelectorAll('#cartList .product-quantity');
+        var totalAmount = 0;
+        productRow.forEach(function(product) {
+            const productRate = parseFloat(product.dataset.productrate);
+            const quantityValue = parseFloat(product.value);
+            totalAmount += (quantityValue * productRate);
+        })
+        document.getElementById('totalAmount').innerText = parseFloat(totalAmount).toFixed(2);
+    }
+
+    function RemoveProduct(row) {
+        const rowId = parseInt(row.dataset.rowid);
+        const index = productCart.findIndex(i => i.RowId === rowId);
+        if (index !== -1) {
+            productCart.splice(index, 1);
+        }
+        row.closest('tr').remove();
+        UpdateOrderSummary();
+    }
+
+    function HandleItemQuantity(input) {
+        minValue =  parseInt(input.getAttribute('min'));
+        maxValue =  parseInt(input.getAttribute('max'));
+        currentValue =  parseInt(input.value);
+
+        const rowId = parseInt(input.dataset.rowid);
+
+        if (currentValue >= minValue && currentValue <= maxValue) {
+
+            const product = productCart.find(i => i.RowId === rowId);
+            if (product) {
+                product.ProductQuantity = currentValue;
+            }
+            console.log(productCart);
+
+            UpdateOrderSummary();
+            UpdateProductTotal(input);
+        } 
+        else {
+            toastr.clear();
+            toastr.error(`Product stock is less than ${currentValue}`);
+            input.value = 1;
+        }
+    }
+
+    function Checkout() {
+        $.ajax({
+            url: '@Url.Action("CreateNewOrder", "Cart")', 
+            type: 'POST',
+            data: {
+                    OrderDetails: productCart
+                  },
+            success: function (response) {
+                if(response.isSuccess) {
+                    toastr.success(response.message);
+                }
+                else {
+                    toastr.error(response.message);
+                }
+                productCart = [];
+            },
+            error: function (xhr, status, error) {
+                toastr.error("Error: " + error);
+            }
+        });
+    }
+
+</script>
+
+<script type="text/template" id="product-row-template">
+    <tr>
+        <td>{{ProductName}}</td>
+        <td>{{ProductRate}}</td>
+        <td>
+            <input type="number" 
+                class="form-control product-quantity"
+                value="{{ProductQuantity}}" 
+                min="1" 
+                max="{{StockQuantity}}"   
+                style="width: 100px;"
+                data-rowid="{{RowId}}"
+                data-productrate="{{ProductRate}}"
+                onchange="HandleItemQuantity(this)"
+            >
+        </td>
+        <td class="product-total">{{ProductRate}}</td>
+        <td>
+            <button class="border-0 bg-transparent" data-rowid="{{RowId}}" onclick="RemoveProduct(this)">
+                <i class="bi bi-trash text-danger"></i>
+            </button>
+        </td>
+    </tr>
+</script>

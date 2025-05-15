@@ -8,4 +8,5 @@ public class ProductViewModal
     public decimal ProductRate { get; set; }
     public int StockQuantity { get; set; }
     public string Category { get; set; } = null!;
+    public int ProductQuantity { get; set; }
 }
