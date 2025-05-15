@@ -67,4 +67,27 @@ public class OrderService : IOrderService
         }
     }
 
+    public async Task<List<OrderDetailsViewModel>?> GetAllOrderOfCustomer(int customerId) {
+        try
+        {
+            return await _unitOfWork.Orders.GetSelectedListAsync(
+                o => o.CustomerId == customerId,
+                o => new OrderDetailsViewModel {
+                    Id = o.Id,
+                    OrderStatus = o.OrderStatus,
+                    TotalAmount = o.TotalAmount,
+                    OrderedProducts = o.OrderDetails.Select(od => new ProductViewModal{
+                        ProductName = od.Product.ProductName,
+                        ProductQuantity = od.ProductQuantity,
+                        ProductRate = od.ProductRate,
+                    }).ToList()
+                }
+            );
+        }
+        catch (Exception)
+        {            
+            return null;
+        }
+    }
+
 }

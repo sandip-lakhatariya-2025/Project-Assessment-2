@@ -1,4 +1,5 @@
 using System.Security.Claims;
+using System.Threading.Tasks;
 using Assessment.Models.ViewModel;
 using Assessment.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -31,15 +32,16 @@ public class OrderController : Controller
 
     [HttpPost]
     public async Task<IActionResult> CreateNewOrder(List<ProductViewModal> OrderDetails) {
-                // var result = await _productService.DeleteProductAsync(productId);
-
-        Console.WriteLine("--------------> "+OrderDetails.First().ProductName);
-        Console.WriteLine("--------------> "+OrderDetails.First().ProductRate);
-        Console.WriteLine("--------------> "+OrderDetails.First().ProductQuantity);
-        Console.WriteLine("--------------> "+OrderDetails.First().Id);
         int customerId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
-
         var result = await _orderService.AddNewOrderAsync(OrderDetails, customerId);
         return Json(new { isSuccess = result.isSuccess, message = result.message });
+    }
+
+    [Authorize]
+    public async Task<IActionResult> MyOrder()
+    {
+        int customerId = Convert.ToInt32(User.FindFirstValue(ClaimTypes.NameIdentifier));
+        List<OrderDetailsViewModel>? orderDetailsList = await _orderService.GetAllOrderOfCustomer(customerId);
+        return View("CustomersOrder", orderDetailsList);
     }
 }
