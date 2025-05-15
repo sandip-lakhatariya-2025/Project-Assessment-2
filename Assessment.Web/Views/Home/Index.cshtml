@@ -2,7 +2,32 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+<div class="container-fluid px-4">
+    <div class="d-flex justify-content-between align-items-center">
+        <span class="fs-2 fw-semibold">Product Management</span>
+        <button class="btn btn-outline-primary" onclick="ShowProductModal()">
+            <i class="bi bi-plus-lg"></i> New Product
+        </button>
+    </div>
 </div>
+
+<div class="" id="addOrEditProductModalContainer"></div>
+
+<script>
+
+    function ShowProductModal(id = 0) {
+        $.ajax({
+            url: '@Url.Action("GetAddOrEditProductModal", "Home")',
+            type: 'GET',
+            data: {productId: id},
+            success: function(response) {
+                $('#addOrEditProductModalContainer').html(response);
+                $('#addOrEditProductModal').modal('show');
+            },
+            error: function() {
+                toastr.error("Error!");
+            }
+        })
+    }
+
+</script>

@@ -1,0 +1,93 @@
+@model ProductViewModal
+
+<div class="modal fade" id="addOrEditProductModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered modal-lg">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>@(Model == null ? "Add" : "Edit") Product</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                <form action="">
+                    <input type="hidden" asp-for="Id">
+                    <div class="row g-2">
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <input type="text" class="form-control" asp-for="ProductName" placeholder="ProductName">
+                                <label for="ProductName">Product Name</label>
+                                <span asp-validation-for="ProductName" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <select class="form-select" asp-for="Category">
+                                    <option hidden selected>Select a Category</option>
+                                    <option value="Mobile">Mobile</option>
+                                    <option value="Laptop">Laptop</option>
+                                    <option value="Accessories">Accessories</option>
+                                </select>
+                                <label for="Category">Category</label>
+                                <span asp-validation-for="Category" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" asp-for="ProductRate" placeholder="ProductRate">
+                                <label for="ProductRate">ProductRate</label>
+                                <span asp-validation-for="ProductRate" class="text-danger"></span>
+                            </div>  
+                        </div>
+                        <div class="col-6">
+                            <div class="form-floating">
+                                <input type="number" class="form-control" asp-for="StockQuantity" placeholder="StockQuantity">
+                                <label for="StockQuantity">StockQuantity</label>
+                                <span asp-validation-for="StockQuantity" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="col-12">
+                            <div class="form-floating">
+                                <textarea class="form-control" asp-for="Description" placeholder="Description"></textarea>
+                                <label for="Description">Description</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="SaveProduct()">Save</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script src="~/lib/jquery-validation/dist/jquery.validate.min.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.min.js"></script>
+
+<script>
+    function SaveProduct() {
+        var form = $('#addOrEditProductModal form');
+        var formData = form.serialize();
+
+        form.validate();
+        if(form.valid() === true) {
+            $.ajax({
+                url: '@Url.Action("AddOrEditProduct", "Home")',
+                type: 'POST',
+                data: formData,
+                success: function(response) {
+                    if(response.isSuccess) {
+                        toastr.success(response.message);
+                        $('#addOrEditProductModal').modal('hide');
+                    }
+                    else {
+                        toastr.error(response.message)
+                    }
+                },
+                error: function() {
+                    toastr.error("Error!");
+                }
+            })
+        }
+    }
+</script>

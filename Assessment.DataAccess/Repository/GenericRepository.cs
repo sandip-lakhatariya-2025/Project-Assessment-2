@@ -15,9 +15,14 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         _dbSet = context.Set<T>();
     }
 
-    public Task<TResult?> GetFirstOrDefaultSelected<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selector)
+    public async Task<TResult?> GetFirstOrDefaultSelected<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selector)
     {
-        return _dbSet.Where(filter).Select(selector).FirstOrDefaultAsync();
+        return await _dbSet.Where(filter).Select(selector).FirstOrDefaultAsync();
+    }
+
+    public async Task<bool> InsertAsync(T entity) {
+        await _context.AddAsync(entity);
+        return await _context.SaveChangesAsync() > 0;
     }
 
 }

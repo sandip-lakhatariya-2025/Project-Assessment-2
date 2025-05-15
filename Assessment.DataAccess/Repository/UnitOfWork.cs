@@ -9,6 +9,8 @@ public class UnitOfWork : IUnitOfWork
     public UnitOfWork(MyDbContext context) {
         _context = context;
         Users = new UserRepository(_context);
+        Products = new ProductRepository(_context);
     }
     public IUserRepository Users { get; private set; }
+    public IProductRepository Products { get; private set; }
 }
