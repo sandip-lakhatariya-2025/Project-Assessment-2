@@ -38,4 +38,23 @@ public class ProductService : IProductService
         }
     }
 
+    public async Task<List<ProductViewModal>?> GetProductList()
+    {
+        try
+        {
+            return await _unitOfWork.Products.GetSelectedListAsync(
+                p => 1 == 1,
+                p => new ProductViewModal{
+                    ProductName = p.ProductName,
+                    ProductRate = p.ProductRate,
+                    StockQuantity = p.StockQuantity,
+                    Category = p.Category
+                }
+            );
+        }
+        catch (Exception)
+        {
+            return null;
+        }
+    }
 }

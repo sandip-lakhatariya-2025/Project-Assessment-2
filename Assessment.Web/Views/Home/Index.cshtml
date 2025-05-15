@@ -2,18 +2,25 @@
     ViewData["Title"] = "Home Page";
 }
 
-<div class="container-fluid px-4">
-    <div class="d-flex justify-content-between align-items-center">
-        <span class="fs-2 fw-semibold">Product Management</span>
-        <button class="btn btn-outline-primary" onclick="ShowProductModal()">
-            <i class="bi bi-plus-lg"></i> New Product
-        </button>
+<div class="container-fluid row justify-content-center px-4">
+    <div class="col-10">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <span class="fs-2 fw-semibold">Product Management</span>
+            <button class="btn btn-outline-primary" onclick="ShowProductModal()">
+                <i class="bi bi-plus-lg"></i> New Product
+            </button>
+        </div>
+        <div class="bg-white shadow p-3" id="ProductListContainer"></div>
     </div>
 </div>
 
 <div class="" id="addOrEditProductModalContainer"></div>
 
 <script>
+
+    $(document).ready(function() {
+        FetchProductList();
+    })
 
     function ShowProductModal(id = 0) {
         $.ajax({
@@ -23,6 +30,19 @@
             success: function(response) {
                 $('#addOrEditProductModalContainer').html(response);
                 $('#addOrEditProductModal').modal('show');
+            },
+            error: function() {
+                toastr.error("Error!");
+            }
+        })
+    }
+
+    function FetchProductList() {
+        $.ajax({
+            url: '@Url.Action("GetProductList", "Home")',
+            type: 'GET',
+            success: function(response) {
+                $('#ProductListContainer').html(response);
             },
             error: function() {
                 toastr.error("Error!");

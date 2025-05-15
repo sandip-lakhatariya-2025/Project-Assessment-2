@@ -79,6 +79,7 @@
                     if(response.isSuccess) {
                         toastr.success(response.message);
                         $('#addOrEditProductModal').modal('hide');
+                        FetchProductList();
                     }
                     else {
                         toastr.error(response.message)

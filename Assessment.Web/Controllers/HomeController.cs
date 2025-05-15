@@ -1,5 +1,6 @@
 using System.Diagnostics;
 using System.Security.Cryptography.X509Certificates;
+using System.Threading.Tasks;
 using Assessment.Models.ViewModel;
 using Assessment.Services.IServices;
 using Microsoft.AspNetCore.Authorization;
@@ -35,6 +36,13 @@ public class HomeController : Controller
         var result = await _productService.AddProductAsync(product);
         return Json(new { isSuccess = result.isSuccess, message = result.message });
     }
+
+    [HttpGet]
+    public async Task<IActionResult> GetProductList() {
+        List<ProductViewModal>? products = await _productService.GetProductList();
+        return PartialView("_ProductList", products);
+    }
+
 
     [Authorize(Roles = "Admin")]
     public IActionResult Privacy()
