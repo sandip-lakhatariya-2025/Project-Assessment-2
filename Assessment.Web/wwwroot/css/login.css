@@ -1,0 +1,41 @@
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #01705f;
+}
+
+.btn, .form-control, .form-check-input {
+    border-radius: 0;
+}
+
+.password-div i {
+    position: absolute;
+    right: 15px;
+    top: 50%;
+    transform: translateY(-50%);
+    font-size: 20px;
+}
+
+#password-div i {
+    cursor: pointer;
+}
+
+input::-ms-reveal,
+input::-ms-clear {
+    display: none;
+}
+
+.login-btn:hover {
+    filter: brightness(0.9);
+}
+
+@media (min-width: 992px) {
+    .login-img {
+        height: 400px;
+    }
+}
+
+@media (min-width: 576px) and (max-width: 991px) {
+    .login-img {
+        height: 280px;
+    }
+}
