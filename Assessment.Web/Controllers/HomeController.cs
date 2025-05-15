@@ -24,16 +24,25 @@ public class HomeController : Controller
     }
 
     [HttpGet]
-    public IActionResult GetAddOrEditProductModal(int productId) {
+    public async Task<IActionResult> GetAddOrEditProductModal(int productId) {
         if(productId == 0) {
             return PartialView("_AddOrEditProductModal");
         }
-        return PartialView("_AddOrEditProductModal");
+        ProductViewModal? product = await _productService.GetProductById(productId);
+        return PartialView("_AddOrEditProductModal", product);
     }
 
     [HttpPost]
     public async Task<IActionResult> AddOrEditProduct(ProductViewModal product) {
-        var result = await _productService.AddProductAsync(product);
+        
+        (bool isSuccess, string message) result;
+
+        if(product.Id == 0) {
+            result = await _productService.AddProductAsync(product);
+        }
+        else {
+            result = await _productService.EditProductAsync(product);
+        }
         return Json(new { isSuccess = result.isSuccess, message = result.message });
     }
 
@@ -43,6 +52,18 @@ public class HomeController : Controller
         return PartialView("_ProductList", products);
     }
 
+    [HttpGet]
+    public IActionResult GetDeleteModal(int id) {
+        return PartialView("_DeleteModal", id);
+    }
+
+    [HttpPost]
+    public async Task<IActionResult> DeleteProduct(int productId) {
+        
+        var result = await _productService.DeleteProductAsync(productId);
+
+        return Json(new { isSuccess = result.isSuccess, message = result.message });
+    }
 
     [Authorize(Roles = "Admin")]
     public IActionResult Privacy()

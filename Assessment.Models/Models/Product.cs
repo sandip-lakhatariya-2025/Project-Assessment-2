@@ -8,4 +8,5 @@ public class Product
     public decimal ProductRate { get; set; }
     public int StockQuantity { get; set; }
     public string Category { get; set; } = null!;
+    public bool IsDeleted { get; set; }
 }

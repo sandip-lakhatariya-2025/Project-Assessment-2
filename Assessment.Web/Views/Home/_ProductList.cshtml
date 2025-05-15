@@ -18,7 +18,16 @@
                     <td>@product.Category</td>
                     <td>@product.ProductRate</td>
                     <td>@product.StockQuantity</td>
-                    <td></td>
+                    <td>
+                        <div class="action-btn">
+                            <button class="border-0 bg-transparent" onclick="ShowProductModal(@product.Id)">
+                                <i class="bi bi-pencil-square text-primary"></i>
+                            </button>
+                            <button class="border-0 bg-transparent" onclick="ShowDeleteModal(@product.Id)">
+                                <i class="bi bi-trash text-danger"></i>
+                            </button>
+                        </div>
+                    </td>
                 </tr>
             }
         </tbody>

@@ -15,6 +15,11 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         _dbSet = context.Set<T>();
     }
 
+    public async Task<T?> GetFirstOrDefault(Expression<Func<T, bool>> filter) 
+    {
+        return await _dbSet.Where(filter).FirstOrDefaultAsync();
+    }
+
     public async Task<TResult?> GetFirstOrDefaultSelected<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selector)
     {
         return await _dbSet.Where(filter).Select(selector).FirstOrDefaultAsync();
@@ -25,9 +30,18 @@ public class GenericRepository<T> : IGenericRepository<T> where T : class
         return await _context.SaveChangesAsync() > 0;
     }
 
+    public async Task<bool> UpdateAsync(T entity) {
+        _context.Update(entity);
+        return await _context.SaveChangesAsync() > 0;
+    }
+
     public async Task<List<TResult>> GetSelectedListAsync<TResult>(Expression<Func<T, bool>> filter, Expression<Func<T, TResult>> selector)
     {
-        return await _dbSet.Where(filter).Select(selector).ToListAsync();
+        return await _dbSet.Where(filter).OrderBy(x => EF.Property<int>(x, "Id")).Select(selector).ToListAsync();
+    }
+
+    public async Task<bool> ExistAsync(Expression<Func<T, bool>> filter) {
+        return await _dbSet.AnyAsync(filter);
     }
     
 

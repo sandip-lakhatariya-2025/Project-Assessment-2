@@ -1,0 +1,25 @@
+@model int
+
+<div class="modal fade" id="confirmDeleteModal" tabindex="-1" data-bs-backdrop="static">
+    <div class="modal-dialog modal-dialog-centered">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h5>Delete Confirmation</h5>
+                <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+            </div>
+            <div class="modal-body">
+                    <input type="hidden" id="itemId" value="@Model">
+                <div class="d-flex flex-column justify-content-center align-items-center">
+                    <i class="bi bi-exclamation-triangle text-warning fs-1"></i>
+                    <span>
+                        Are you sure you want to delete this <span class="item-type">item</span> ?
+                    </span>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button class="btn btn-primary" onclick="ConfirmDelete()">Confirm</button>
+                <button class="btn btn-secondary" data-bs-dismiss="modal">Cancel</button>
+            </div>
+        </div>
+    </div>
+</div>

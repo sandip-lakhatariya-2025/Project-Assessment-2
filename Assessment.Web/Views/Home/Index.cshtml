@@ -14,7 +14,8 @@
     </div>
 </div>
 
-<div class="" id="addOrEditProductModalContainer"></div>
+<div id="addOrEditProductModalContainer"></div>
+<div id="deleteModalContainer"></div>
 
 <script>
 
@@ -43,6 +44,46 @@
             type: 'GET',
             success: function(response) {
                 $('#ProductListContainer').html(response);
+            },
+            error: function() {
+                toastr.error("Error!");
+            }
+        })
+    }
+
+    function ShowDeleteModal(id) {
+        $.ajax({
+            url: '@Url.Action("GetDeleteModal", "Home")',
+            type: 'GET',
+            data: { id: id},
+            success: function(response) {
+                $('#deleteModalContainer').html(response);
+                $('.item-type').text("Product");
+                $('#confirmDeleteModal').modal('show');
+            },
+            error: function() {
+                toastr.error("Error!");
+            }
+        })
+    }
+
+    
+    function ConfirmDelete() {
+        var id = $('#itemId').val();
+
+        $.ajax({
+            url: '@Url.Action("DeleteProduct", "Home")',
+            type: 'POST',
+            data: {productId: id},
+            success: function(response) {
+                if(response.isSuccess) {
+                    toastr.success(response.message);
+                    $('#confirmDeleteModal').modal('hide');
+                    FetchProductList();
+                }
+                else {
+                    toastr.error(response.message)
+                }
             },
             error: function() {
                 toastr.error("Error!");
