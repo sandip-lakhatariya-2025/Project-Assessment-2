@@ -37,7 +37,9 @@
                                         </div>
                                     }
                                 </td>
-                                <td>@order.OrderStatus</td>
+                                <td>
+                                    <span class="@order.OrderStatus text-center">@order.OrderStatus</span>
+                                </td>
                                 <td>@order.TotalAmount.ToString("F2")</td>
                             </tr>
                         }

@@ -31,3 +31,31 @@ body {
   padding: 1px 7px;
   border-radius: 5px;
 }
+
+.Pending {
+  color: white;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background-color: #DC4C64;
+}
+
+.Accepted {
+  color: white;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background-color: #afe4b8;
+}
+
+.Shipped {
+  color: white;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background-color: #034981;
+}
+
+.Delivered {
+  color: white;
+  padding: 2px 7px;
+  border-radius: 5px;
+  background-color: #f7d48b;
+}
